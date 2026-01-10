@@ -14,16 +14,19 @@ export default function SigninView() {
 
 	return (
 		<div className="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-lg bg-white flex flex-col md:flex-row">
-			<div className="md:w-1/2 w-full p-6 md:p-12">
-				<div className="max-w-md mx-auto">
-					<div className="flex items-center gap-3">
-						<div className="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-600 to-sky-400 flex items-center justify-center shadow-md"> 
-							<span className="text-white font-bold">MW</span>
-						</div>
-						<h1 className="text-2xl md:text-3xl font-semibold">Log in to your Account</h1>
-					</div>
-
-					<p className="mt-4 text-sm text-muted-foreground">Welcome back! Select method to log in:</p>
+      <div className="md:w-1/2 w-full p-6 md:p-12">
+        <div className="max-w-md mx-auto">
+          <div className="mb-6">
+            <div className="relative h-8 w-32">
+              <Image
+                src="/logo-color.svg"
+                alt="MeetWise Logo"
+                fill
+                className="object-contain object-left"
+              />
+            </div>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-semibold">Log in to your Account</h1>					<p className="mt-4 text-sm text-muted-foreground">Welcome back! Select method to log in:</p>
 
 					<div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
 						<Button variant="ghost" className="w-full justify-center gap-2 bg-white/90 text-slate-800 border border-slate-200 shadow-sm">
@@ -88,16 +91,26 @@ export default function SigninView() {
 			</div>
 
 			<div className="md:w-1/2 w-full hidden md:flex items-stretch">
-				<div className="flex-1 relative bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500 p-8 flex items-center justify-center">
-					<div className="max-w-xs md:max-w-sm text-center">
-						<div className="relative w-56 h-56 mx-auto">
+				<div className="flex-1 relative bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 p-8 flex items-center justify-center overflow-hidden">
+					<div className="absolute inset-0 flex items-center justify-center z-20">
+						<div className="relative w-56 h-56 md:w-80 md:h-80 opacity-100">
 							<Image
+								src="/logo.svg"
+								alt="Logo background"
+								fill
+								className="object-contain"
+							/>
+						</div>
+					</div>
+					<div className="max-w-xs md:max-w-sm text-center relative z-0">
+						<div className="relative w-56 h-56 mx-auto z-20">
+							{/* <Image
 								src="/sign-in-illustration.svg"
 								alt="Sign in illustration"
 								fill
 								sizes="(min-width: 768px) 40vw, 100vw"
 								className="object-contain"
-							/>
+							/> */}
 						</div>
 
 						<h2 className="mt-6 text-lg md:text-xl font-semibold text-white">Connect with every application.</h2>
