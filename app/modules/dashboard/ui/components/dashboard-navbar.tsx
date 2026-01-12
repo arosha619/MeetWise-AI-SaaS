@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { useSidebar } from "@/components/ui/sidebar";
-import { PanelLeftCloseIcon, PanelLeftIcon } from "lucide-react";
+import { PanelLeftCloseIcon, PanelLeftIcon, SearchIcon } from "lucide-react";
 
 export const DashboardNavBar = () => {
   const { state, toggleSidebar, isMobile } = useSidebar();
@@ -14,6 +15,18 @@ export const DashboardNavBar = () => {
         ) : (
           <PanelLeftCloseIcon />
         )}
+      </Button>
+      <Button
+        className="h-9 w-66.5 justify-start font-normal text-muted-foreground hover:text-muted-foreground"
+        variant="outline"
+        size="sm"
+        onClick={() => {}}
+      >
+        <SearchIcon />
+        Search agents, Meetings and all...
+        <Kbd>
+          <span>&#8984;</span>
+        </Kbd>
       </Button>
     </nav>
   );
