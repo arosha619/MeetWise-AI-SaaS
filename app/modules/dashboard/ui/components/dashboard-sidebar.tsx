@@ -32,12 +32,12 @@ const navigationItems = [
     icon: Calendar,
   },
   {
-    href: "/dashboard/agents",
+    href: "/agents",
     label: "Agents",
     icon: Settings,
   },
   {
-    href: "/dashboard/upgrade",
+    href: "/upgrade",
     label: "Upgrade",
     icon: Zap,
     badge: "Pro",
