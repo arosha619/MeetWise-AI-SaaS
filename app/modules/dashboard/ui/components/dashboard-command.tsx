@@ -1,6 +1,14 @@
 "use client";
 
-import { CommandDialog, CommandInput, CommandItem, CommandList, CommandEmpty, CommandGroup, CommandShortcut } from "@/components/ui/command";
+import {
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandShortcut,
+  ResponsiveCommandDialog,
+} from "@/components/ui/command";
 import { Dispatch, SetStateAction } from "react";
 import { Calendar, Settings, Zap, User, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -10,7 +18,7 @@ interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export const DashboardCommand = ({open, setOpen}: Props) => {
+export const DashboardCommand = ({ open, setOpen }: Props) => {
   const router = useRouter();
 
   const handleSelect = (action: () => void) => {
@@ -19,11 +27,11 @@ export const DashboardCommand = ({open, setOpen}: Props) => {
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <ResponsiveCommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Search agents, meetings, and more..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        
+
         <CommandGroup heading="Navigation">
           <CommandItem
             onSelect={() => handleSelect(() => router.push("/dashboard"))}
@@ -32,13 +40,17 @@ export const DashboardCommand = ({open, setOpen}: Props) => {
             <span>Meetings</span>
           </CommandItem>
           <CommandItem
-            onSelect={() => handleSelect(() => router.push("/dashboard/agents"))}
+            onSelect={() =>
+              handleSelect(() => router.push("/dashboard/agents"))
+            }
           >
             <Settings className="mr-2 h-4 w-4" />
             <span>Agents</span>
           </CommandItem>
           <CommandItem
-            onSelect={() => handleSelect(() => router.push("/dashboard/upgrade"))}
+            onSelect={() =>
+              handleSelect(() => router.push("/dashboard/upgrade"))
+            }
           >
             <Zap className="mr-2 h-4 w-4" />
             <span>Upgrade</span>
@@ -48,26 +60,30 @@ export const DashboardCommand = ({open, setOpen}: Props) => {
 
         <CommandGroup heading="Quick Actions">
           <CommandItem
-            onSelect={() => handleSelect(() => {
-              // Handle create meeting
-              console.log("Create meeting");
-            })}
+            onSelect={() =>
+              handleSelect(() => {
+                // Handle create meeting
+                console.log("Create meeting");
+              })
+            }
           >
             <Calendar className="mr-2 h-4 w-4" />
             <span>Create Meeting</span>
             <CommandShortcut>⌘M</CommandShortcut>
           </CommandItem>
           <CommandItem
-            onSelect={() => handleSelect(() => {
-              // Handle create agent
-              console.log("Create agent");
-            })}
+            onSelect={() =>
+              handleSelect(() => {
+                // Handle create agent
+                console.log("Create agent");
+              })
+            }
           >
             <User className="mr-2 h-4 w-4" />
             <span>Create Agent</span>
           </CommandItem>
         </CommandGroup>
       </CommandList>
-    </CommandDialog>
+    </ResponsiveCommandDialog>
   );
 };
