@@ -10,8 +10,18 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { List } from "lucide-react";
 import { ListHeader } from "@/app/modules/agents/ui/components/list-header";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 const agent = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/auth/sign-in");
+  }
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(trpc.agent.getMany.queryOptions());
   return (

@@ -19,7 +19,7 @@ export const agentRouter = createTRPCRouter({
     return existingAgent;
   }),
   
-  getMany: baseProcedure.query(async () => {
+  getMany: protectedProcedure.query(async () => {
     const data = await db.select().from(agents);
 
     // throw new TRPCError({
