@@ -12,9 +12,9 @@ import { columns } from "../components/columns";
 
 export const AgentsView = () => {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.agent.getMany.queryOptions());
+  const { data } = useSuspenseQuery(trpc.agent.getMany.queryOptions({}));
 
-  if (data.length === 0) {
+  if (data.items.length === 0) {
     return (
       <div className="flex-1 pb-4 px-4 md:px-8 flex flex-col gap-y-4">
         <EmptyState
@@ -28,7 +28,7 @@ export const AgentsView = () => {
 
   return (
     <div className="flex-1 pb-4 px-4 md:px-8 flex flex-col gap-y-4">
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={data.items} />
     </div>
   );
 };
