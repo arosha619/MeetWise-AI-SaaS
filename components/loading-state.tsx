@@ -8,7 +8,7 @@ export const LoadingState = ({
   description = "Please wait while we process your request",
 }: LoadingCardProps) => {
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex min-h-[60vh] w-full items-center justify-center">
       <div className="w-full max-w-sm rounded-2xl border bg-background p-6 shadow-sm">
         <div className="flex flex-col items-center gap-4 text-center">
           {/* Spinner */}
