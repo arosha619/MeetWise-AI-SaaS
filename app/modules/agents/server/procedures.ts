@@ -18,17 +18,20 @@ export const agentRouter = createTRPCRouter({
 
     return existingAgent;
   }),
-  
-  getMany: protectedProcedure.query(async () => {
-    const data = await db.select().from(agents);
 
-    // throw new TRPCError({
-    //   code: "FORBIDDEN",
-    //   message: "You do not have access to view agents.",
-    // });
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(1),
+        pageSize: z.number().min(1).max(100).default(10),
+        search: z.string().nullish(),
+      }).optional())
 
-    return data;
-  }),
+    .query(async ({ input }) => {
+      const data = await db.select().from(agents);
+      return data;
+    }),
+
   create: protectedProcedure
     .input(agentInsertSchema)
     .mutation(async ({ input, ctx }) => {
