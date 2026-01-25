@@ -13,9 +13,18 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@
 
 export const agentRouter = createTRPCRouter({
   //to-do; change getmany to use protected procedure
-  getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
-    const [existingAgent] = await db.select().from(agents).where(eq(agents.id, input.id));
+  getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
 
+    const [existingAgent] = await db.select()
+      .from(agents)
+      .where(
+        and(
+          eq(agents.id, input.id),
+          eq(agents.userId, ctx.auth.user.id)
+        ));
+    if (!existingAgent) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Agent not found" });
+    }
 
     return existingAgent;
   }),
