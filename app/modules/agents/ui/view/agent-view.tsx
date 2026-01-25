@@ -10,12 +10,14 @@ import { columns } from "../components/columns";
 import { useAgentsFilters } from "../../hooks/use-agents-filter";
 import { DataPagination } from "../components/data-pagination";
 import { DEFAULT_PAGE } from "@/constants";
+import { useRouter } from "next/navigation";
 
 
 
 export const AgentsView = () => {
   const [filters, setFilters] = useAgentsFilters();
   const trpc = useTRPC();
+  const router = useRouter();
 
   const { data } = useSuspenseQuery(trpc.agent.getMany.queryOptions({ ...filters }));
   const page = filters.page ?? DEFAULT_PAGE;
@@ -35,7 +37,11 @@ export const AgentsView = () => {
 
   return (
     <div className="flex-1 pb-4 px-4 md:px-8 flex flex-col gap-y-4">
-      <DataTable columns={columns} data={data.items} />
+      <DataTable
+        columns={columns}
+        data={data.items}
+        onRowClick={(agent) => router.push(`/agents/${agent.id}`)}
+      />
       <DataPagination
         page={page}
         totalPages={totalPages}
