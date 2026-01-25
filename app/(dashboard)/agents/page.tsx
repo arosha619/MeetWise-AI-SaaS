@@ -23,7 +23,7 @@ const agent = async () => {
     redirect("/auth/sign-in");
   }
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.agent.getMany.queryOptions());
+  void queryClient.prefetchQuery(trpc.agent.getMany.queryOptions({}));
   return (
     <>
       <ListHeader />
