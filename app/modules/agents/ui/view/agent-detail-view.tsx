@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/error";
 import { LoadingState } from "@/components/loading-state";
+import { useRouter } from "next/navigation";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface AgentDetailViewProps {
   agentId: string;
@@ -37,9 +40,40 @@ const formatDate = (value: Date | string | null | undefined) => {
 
 export const AgentDetailView = ({ agentId }: AgentDetailViewProps) => {
   const trpc = useTRPC();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(
     trpc.agent.getOne.queryOptions({ id: agentId })
   );
+  const [ConfirmDialog, confirm] = useConfirm({
+    title: "Delete this agent?",
+    description: "This action cannot be undone. This will permanently delete the agent.",
+    confirmText: "Delete agent",
+  });
+
+  const removeAgent = useMutation(
+    trpc.agent.remove.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.agent.getMany.queryOptions({}).queryKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: trpc.agent.getOne.queryOptions({ id: agentId }).queryKey,
+        });
+        toast.success("Agent deleted");
+        router.push("/agents");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
+  const handleDelete = async () => {
+    const confirmed = await confirm();
+    if (!confirmed) return;
+    removeAgent.mutate({ id: agentId });
+  };
 
   return (
     <div className="flex-1 px-4 pb-6 pt-4 md:px-8">
@@ -68,11 +102,22 @@ export const AgentDetailView = ({ agentId }: AgentDetailViewProps) => {
               Created {formatDate(data.createdAt)} • Updated {formatDate(data.updatedAt)}
             </p>
           </div>
-          <Button asChild variant="outline">
-            <Link href="/agents">Back to agents</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/agents">Back to agents</Link>
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={removeAgent.isPending}
+              onClick={handleDelete}
+            >
+              {removeAgent.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
         </div>
       </div>
+
+      <ConfirmDialog />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
