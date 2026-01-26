@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,6 +28,8 @@ import { ErrorState } from "@/components/error";
 import { LoadingState } from "@/components/loading-state";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/hooks/use-confirm";
+import { AgentForm } from "../components/agent-form";
+import { useState } from "react";
 
 interface AgentDetailViewProps {
   agentId: string;
@@ -42,6 +45,7 @@ export const AgentDetailView = ({ agentId }: AgentDetailViewProps) => {
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [editOpen, setEditOpen] = useState(false);
   const { data } = useSuspenseQuery(
     trpc.agent.getOne.queryOptions({ id: agentId })
   );
@@ -106,6 +110,9 @@ export const AgentDetailView = ({ agentId }: AgentDetailViewProps) => {
             <Button asChild variant="outline">
               <Link href="/agents">Back to agents</Link>
             </Button>
+            <Button variant="outline" onClick={() => setEditOpen(true)}>
+              Edit
+            </Button>
             <Button
               variant="destructive"
               disabled={removeAgent.isPending}
@@ -118,6 +125,18 @@ export const AgentDetailView = ({ agentId }: AgentDetailViewProps) => {
       </div>
 
       <ConfirmDialog />
+      <ResponsiveDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        title="Edit Agent"
+        description="Update agent details"
+      >
+        <AgentForm
+          initialValues={data}
+          onSuccess={() => setEditOpen(false)}
+          onCancel={() => setEditOpen(false)}
+        />
+      </ResponsiveDialog>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>

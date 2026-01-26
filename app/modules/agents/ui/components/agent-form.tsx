@@ -49,7 +49,7 @@ export const AgentForm = ({
     trpc.agent.create.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.agent.getMany.queryOptions().queryKey,
+          queryKey: trpc.agent.getMany.queryOptions({}).queryKey,
         });
         if (initialValues?.id) {
           await queryClient.invalidateQueries({
@@ -66,12 +66,36 @@ export const AgentForm = ({
     })
   );
 
+  const updateAgent = useMutation(
+    trpc.agent.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.agent.getMany.queryOptions({}).queryKey,
+        });
+        if (initialValues?.id) {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.agent.getOne.queryOptions({ id: initialValues.id })
+              .queryKey,
+          });
+        }
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
   const onSubmit = async (values: z.infer<typeof agentInsertSchema>) => {
+    if (initialValues?.id) {
+      updateAgent.mutate({ id: initialValues.id, ...values });
+      return;
+    }
     createAgent.mutate(values);
   };
 
   const isEdit = !!initialValues?.id;
-  const isPending = createAgent.isPending;
+  const isPending = createAgent.isPending || updateAgent.isPending;
 
   return (
     <Form {...form}>
@@ -126,7 +150,9 @@ export const AgentForm = ({
           )}
           <Button type="submit" disabled={isPending}>
             {isPending
-              ? "Creating..."
+              ? isEdit
+                ? "Updating..."
+                : "Creating..."
               : isEdit
                 ? "Update Agent"
                 : "Create Agent"}
