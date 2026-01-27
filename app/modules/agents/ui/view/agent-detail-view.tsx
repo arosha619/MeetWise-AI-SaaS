@@ -145,7 +145,7 @@ export const AgentDetailView = ({ agentId }: AgentDetailViewProps) => {
             <CardDescription>How this agent should behave.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="whitespace-pre-wrap text-sm text-foreground">
+            <div className="whitespace-pre-wrap break-all text-sm text-foreground">
               {data.instructions}
             </div>
           </CardContent>
