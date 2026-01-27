@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { Calendar, Zap, Settings, LogOut, User } from "lucide-react";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface UserSession {
   user?: {
@@ -48,6 +49,11 @@ export function DashboardSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<UserSession | null>(null);
+  const [ConfirmDialog, confirm] = useConfirm({
+    title: "Sign out?",
+    description: "You will need to sign in again to access your account.",
+    confirmText: "Sign out",
+  });
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -64,6 +70,8 @@ export function DashboardSidebar() {
   }, []);
 
   const handleSignOut = async () => {
+    const confirmed = await confirm();
+    if (!confirmed) return;
     try {
       await authClient.signOut();
       router.push("/auth/sign-in");
@@ -81,6 +89,7 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar className="border-r border-border bg-background">
+      <ConfirmDialog />
       <SidebarHeader className="border-b border-border px-6 py-4">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="relative h-8 w-32">
