@@ -50,11 +50,19 @@ export const useConfirm = ({
             title={title}
             description={description}
           >
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => handleClose(false)}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end sm:items-center">
+              <Button
+                className="w-full sm:w-auto"
+                variant="outline"
+                onClick={() => handleClose(false)}
+              >
                 {cancelText}
               </Button>
-              <Button variant="destructive" onClick={() => handleClose(true)}>
+              <Button
+                className="w-full sm:w-auto"
+                variant="destructive"
+                onClick={() => handleClose(true)}
+              >
                 {confirmText}
               </Button>
             </div>
