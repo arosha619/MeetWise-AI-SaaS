@@ -28,7 +28,7 @@ interface UserSession {
 
 const navigationItems = [
   {
-    href: "/dashboard",
+    href: "/meetings",
     label: "Meetings",
     icon: Calendar,
   },
