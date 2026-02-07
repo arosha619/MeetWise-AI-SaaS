@@ -46,3 +46,15 @@ export function EmptyAgentsIllustration() {
     </div>
   )
 }
+
+export function EmptyMeetingsIllustration() {
+  return (
+    <div className="rounded-xl border bg-muted/40 p-4">
+      <img
+        src="/empty-agents.svg"
+        alt="Empty meetings"
+        className="size-24 text-muted-foreground/70"
+      />
+    </div>
+  )
+}

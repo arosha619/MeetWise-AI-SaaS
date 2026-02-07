@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
 import { meetingInsertSchema } from "../../schema";
+import { MeetingOne } from "../../types";
 import {
   Form,
   FormControl,
@@ -26,23 +27,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type MeetingFormValues = z.infer<typeof meetingInsertSchema>;
+
 interface MeetingFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  initialValues?: MeetingOne;
 }
 
 export const MeetingForm = ({
   onSuccess,
   onCancel,
+  initialValues,
 }: MeetingFormProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const meetingId = initialValues?.id as string | undefined;
 
-  const form = useForm<z.infer<typeof meetingInsertSchema>>({
+  const form = useForm<MeetingFormValues>({
     resolver: zodResolver(meetingInsertSchema),
     defaultValues: {
-      name: "",
-      agentId: "",
+      name: String(initialValues?.name ?? ""),
+      agentId: String(initialValues?.agentId ?? ""),
     },
   });
 
@@ -55,6 +61,12 @@ export const MeetingForm = ({
         await queryClient.invalidateQueries({
           queryKey: trpc.meeting.getMany.queryOptions({}).queryKey,
         });
+        if (meetingId) {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.meeting.getOne.queryOptions({ id: meetingId })
+              .queryKey,
+          });
+        }
         form.reset();
         onSuccess?.();
       },
@@ -64,11 +76,36 @@ export const MeetingForm = ({
     })
   );
 
-  const onSubmit = async (values: z.infer<typeof meetingInsertSchema>) => {
+  const updateMeeting = useMutation(
+    trpc.meeting.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.meeting.getMany.queryOptions({}).queryKey,
+        });
+        if (meetingId) {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.meeting.getOne.queryOptions({ id: meetingId })
+              .queryKey,
+          });
+        }
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
+  const onSubmit = async (values: MeetingFormValues) => {
+    if (meetingId) {
+      updateMeeting.mutate({ id: meetingId, ...values });
+      return;
+    }
     createMeeting.mutate(values);
   };
 
-  const isPending = createMeeting.isPending;
+  const isEdit = !!meetingId;
+  const isPending = createMeeting.isPending || updateMeeting.isPending;
 
   return (
     <Form {...form}>
@@ -132,7 +169,13 @@ export const MeetingForm = ({
             </Button>
           )}
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Creating..." : "Create Meeting"}
+            {isPending
+              ? isEdit
+                ? "Updating..."
+                : "Creating..."
+              : isEdit
+                ? "Update Meeting"
+                : "Create Meeting"}
           </Button>
         </div>
       </form>

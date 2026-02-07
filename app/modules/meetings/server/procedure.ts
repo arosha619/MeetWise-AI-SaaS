@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { meetings } from "@/db/schema";
+import { meetings, agents } from "@/db/schema";
 import {
     createTRPCRouter,
     protectedProcedure,
@@ -14,12 +14,13 @@ export const meetingRouter = createTRPCRouter({
     update: protectedProcedure
         .input(meetingUpdateSchema)
         .mutation(async ({ input, ctx }) => {
+            const { id, ...updateData } = input;
             const [updatedMeeting] = await db
                 .update(meetings)
-                .set(input)
+                .set(updateData)
                 .where(
                     and(
-                        eq(meetings.id, input.id),
+                        eq(meetings.id, id),
                         eq(meetings.userId, ctx.auth.user.id)
                     )
                 )
@@ -29,6 +30,25 @@ export const meetingRouter = createTRPCRouter({
             }
             return updatedMeeting;
         }),
+
+    remove: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const [removedMeeting] = await db
+                .delete(meetings)
+                .where(
+                    and(
+                        eq(meetings.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                )
+                .returning();
+            if (!removedMeeting) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+            }
+            return removedMeeting;
+        }),
+
     create: protectedProcedure
         .input(meetingInsertSchema)
         .mutation(async ({ input, ctx }) => {
@@ -42,21 +62,37 @@ export const meetingRouter = createTRPCRouter({
 
             return createdMeeting;
         }),
-    //to-do; change getmany to use protected procedure
+   
     getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
-
-        const [existingMeeting] = await db.select()
+        const [result] = await db
+            .select({
+                id: meetings.id,
+                name: meetings.name,
+                userId: meetings.userId,
+                agentId: meetings.agentId,
+                status: meetings.status,
+                startedAt: meetings.startedAt,
+                endedAt: meetings.endedAt,
+                transcriptUrl: meetings.transcriptUrl,
+                recodingUrl: meetings.recodingUrl,
+                summary: meetings.summary,
+                createdAt: meetings.createdAt,
+                updatedAt: meetings.updatedAt,
+                agentName: agents.name,
+            })
             .from(meetings)
+            .leftJoin(agents, eq(meetings.agentId, agents.id))
             .where(
                 and(
                     eq(meetings.id, input.id),
                     eq(meetings.userId, ctx.auth.user.id)
-                ));
-        if (!existingMeeting) {
+                )
+            );
+        if (!result) {
             throw new TRPCError({ code: "NOT_FOUND", message: "meeting not found" });
         }
 
-        return existingMeeting;
+        return result;
     }),
 
     getMany: protectedProcedure
@@ -71,8 +107,23 @@ export const meetingRouter = createTRPCRouter({
             const { page, pageSize, search } = input;
             const offset = (page - 1) * pageSize;
             const data = await db
-                .select()
+                .select({
+                    id: meetings.id,
+                    name: meetings.name,
+                    userId: meetings.userId,
+                    agentId: meetings.agentId,
+                    status: meetings.status,
+                    startedAt: meetings.startedAt,
+                    endedAt: meetings.endedAt,
+                    transcriptUrl: meetings.transcriptUrl,
+                    recodingUrl: meetings.recodingUrl,
+                    summary: meetings.summary,
+                    createdAt: meetings.createdAt,
+                    updatedAt: meetings.updatedAt,
+                    agentName: agents.name,
+                })
                 .from(meetings)
+                .leftJoin(agents, eq(meetings.agentId, agents.id))
                 .where(
                     and(
                         eq(meetings.userId, ctx.auth.user.id),
