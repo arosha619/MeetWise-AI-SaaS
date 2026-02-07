@@ -55,6 +55,18 @@ export const columns: ColumnDef<MeetingListItem>[] = [
     },
   },
   {
+    accessorKey: "duration",
+    header: "Duration",
+    cell: ({ row }) => {
+      const duration = row.getValue("duration") as string | null;
+      return (
+        <span className="text-sm text-muted-foreground">
+          {duration ?? "—"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "agentName",
     header: "Agent",
     cell: ({ row }) => (

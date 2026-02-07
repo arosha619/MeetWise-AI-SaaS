@@ -230,6 +230,10 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
               <p>{formatDate(data.endedAt)}</p>
             </div>
             <div>
+              <p className="text-muted-foreground">Duration</p>
+              <p>{(data as MeetingOne & { duration?: string | null }).duration ?? "—"}</p>
+            </div>
+            <div>
               <p className="text-muted-foreground">Created at</p>
               <p>{formatDate(data.createdAt)}</p>
             </div>

@@ -24,11 +24,26 @@ const MeetingsPage = async ({ searchParams }: Props) => {
     }
     const filters = await loadSearchParams(searchParams);
     const queryClient = getQueryClient();
-    void queryClient.prefetchQuery(trpc.meeting.getMany.queryOptions({ ...filters }));
+    await queryClient.prefetchQuery(trpc.meeting.getMany.queryOptions({ ...filters }));
 
     return (
         <>
-            <MeetingListHeader />
+            <Suspense
+              fallback={
+                <div className="mb-4">
+                  <div className="flex items-center justify-between px-4 py-4 md:px-8">
+                    <div className="h-8 w-32 animate-pulse rounded bg-muted/40" />
+                    <div className="h-9 w-28 animate-pulse rounded bg-muted/40" />
+                  </div>
+                  <div className="flex gap-2 px-4 md:px-8">
+                    <div className="h-9 max-w-md flex-1 animate-pulse rounded bg-muted/40" />
+                    <div className="h-9 w-[180px] animate-pulse rounded bg-muted/40" />
+                  </div>
+                </div>
+              }
+            >
+                <MeetingListHeader />
+            </Suspense>
             <HydrationBoundary state={dehydrate(queryClient)}>
                 <Suspense fallback={<MeetingViewLoading />}>
                     <ErrorBoundary fallback={<MeetingViewError />}>

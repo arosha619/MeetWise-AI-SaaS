@@ -6,7 +6,7 @@ import {
 } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
-import { and, count, desc, eq, ilike } from "drizzle-orm";
+import { and, count, desc, eq, ilike, sql } from "drizzle-orm";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { meetingInsertSchema, meetingUpdateSchema } from "../schema";
 
@@ -79,9 +79,10 @@ export const meetingRouter = createTRPCRouter({
                 createdAt: meetings.createdAt,
                 updatedAt: meetings.updatedAt,
                 agentName: agents.name,
+                duration: sql<string | null>`(${meetings.endedAt} - ${meetings.startedAt})`,
             })
             .from(meetings)
-            .leftJoin(agents, eq(meetings.agentId, agents.id))
+            .innerJoin(agents, eq(meetings.agentId, agents.id))
             .where(
                 and(
                     eq(meetings.id, input.id),
@@ -122,9 +123,10 @@ export const meetingRouter = createTRPCRouter({
                     createdAt: meetings.createdAt,
                     updatedAt: meetings.updatedAt,
                     agentName: agents.name,
+                    duration: sql<string | null>`(${meetings.endedAt} - ${meetings.startedAt})`,
                 })
                 .from(meetings)
-                .leftJoin(agents, eq(meetings.agentId, agents.id))
+                .innerJoin(agents, eq(meetings.agentId, agents.id))
                 .where(
                     and(
                         eq(meetings.userId, ctx.auth.user.id),
@@ -154,6 +156,4 @@ export const meetingRouter = createTRPCRouter({
                 totalpages
             };
         }),
-
-
 });
