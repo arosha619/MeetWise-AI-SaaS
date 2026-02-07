@@ -17,16 +17,18 @@ const formatDate = (value: unknown) => {
 
 const statusVariant = (
   status: string
-): "default" | "secondary" | "destructive" | "outline" => {
+): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" => {
   switch (status) {
+    case "upcoming":
+      return "info";
     case "active":
-      return "default";
+      return "success";
     case "completed":
       return "secondary";
+    case "processing":
+      return "warning";
     case "cancelled":
       return "destructive";
-    case "processing":
-      return "outline";
     default:
       return "outline";
   }
