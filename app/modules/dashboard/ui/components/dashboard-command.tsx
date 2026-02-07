@@ -10,7 +10,7 @@ import {
   ResponsiveCommandDialog,
 } from "@/components/ui/command";
 import { Dispatch, SetStateAction } from "react";
-import { Calendar, Settings, Zap, User, FileText } from "lucide-react";
+import { Calendar, Settings, Zap, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Props {

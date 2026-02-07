@@ -1,4 +1,4 @@
-import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/app/modules/dashboard/ui/components/dashboard-sidebar";
 import { DashboardNavBar } from "@/app/modules/dashboard/ui/components/dashboard-navbar";
 

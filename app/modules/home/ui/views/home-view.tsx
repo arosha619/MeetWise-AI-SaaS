@@ -1,6 +1,5 @@
 "use client";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Users, Zap, Plus, ArrowRight } from "lucide-react";
@@ -8,7 +7,7 @@ import Link from "next/link";
 
 export default function HomeView() {
   const { data: session } = authClient.useSession();
-  const router = useRouter();
+
 
   if (!session) {
     return (

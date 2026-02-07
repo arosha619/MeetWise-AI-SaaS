@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import {
   Empty,
@@ -38,9 +39,11 @@ export function EmptyState({
 export function EmptyAgentsIllustration() {
   return (
     <div className="rounded-xl border bg-muted/40 p-4">
-      <img
+      <Image
         src="/empty-agents.svg"
         alt="Empty agents"
+        width={96}
+        height={96}
         className="size-24 text-muted-foreground/70"
       />
     </div>
@@ -50,9 +53,11 @@ export function EmptyAgentsIllustration() {
 export function EmptyMeetingsIllustration() {
   return (
     <div className="rounded-xl border bg-muted/40 p-4">
-      <img
+      <Image
         src="/empty-agents.svg"
         alt="Empty meetings"
+        width={96}
+        height={96}
         className="size-24 text-muted-foreground/70"
       />
     </div>

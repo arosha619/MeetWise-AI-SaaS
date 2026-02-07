@@ -8,7 +8,6 @@ import {
 } from "@/app/modules/agents/ui/view/agent-view";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { List } from "lucide-react";
 import { ListHeader } from "@/app/modules/agents/ui/components/list-header";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
