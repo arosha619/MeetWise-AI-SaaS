@@ -2,19 +2,23 @@
 
 import { ErrorState } from "@/components/error";
 import { LoadingState } from "@/components/loading-state";
+import { useMeetingsFilters } from "../../hooks/use-meetings-filter";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const MeetingView = () => {
-    const trpc = useTRPC();
-    const { data } = useSuspenseQuery(trpc.meeting.getMany.queryOptions({}));
+  const trpc = useTRPC();
+  const [filters] = useMeetingsFilters();
+  const { data } = useSuspenseQuery(
+    trpc.meeting.getMany.queryOptions({ ...filters })
+  );
 
-    return (
-        <div>
-            {JSON.stringify(data)}
-            <h1>Meeting View</h1>
-        </div>
-    );
+  return (
+    <div className="flex-1 pb-4 px-4 md:px-8">
+      {JSON.stringify(data)}
+      <h1>Meeting View</h1>
+    </div>
+  );
 };
 
 export const MeetingViewLoading = () => {
