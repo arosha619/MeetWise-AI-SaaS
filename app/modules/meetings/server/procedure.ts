@@ -101,10 +101,11 @@ export const meetingRouter = createTRPCRouter({
                 page: z.number().default(DEFAULT_PAGE),
                 pageSize: z.number().min(MIN_PAGE_SIZE).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
                 search: z.string().nullish(),
+                status: z.enum(["all", "upcoming", "active", "completed", "processing", "cancelled"]).optional().default("all"),
             })
         )
         .query(async ({ ctx, input }) => {
-            const { page, pageSize, search } = input;
+            const { page, pageSize, search, status } = input;
             const offset = (page - 1) * pageSize;
             const data = await db
                 .select({
@@ -127,7 +128,8 @@ export const meetingRouter = createTRPCRouter({
                 .where(
                     and(
                         eq(meetings.userId, ctx.auth.user.id),
-                        search ? ilike(meetings.name, `%${search}%`) : undefined
+                        search ? ilike(meetings.name, `%${search}%`) : undefined,
+                        status && status !== "all" ? eq(meetings.status, status) : undefined
                     )
                 )
                 .orderBy(desc(meetings.createdAt), desc(meetings.id))
@@ -140,7 +142,8 @@ export const meetingRouter = createTRPCRouter({
                 .where(
                     and(
                         eq(meetings.userId, ctx.auth.user.id),
-                        search ? ilike(meetings.name, `%${search}%`) : undefined
+                        search ? ilike(meetings.name, `%${search}%`) : undefined,
+                        status && status !== "all" ? eq(meetings.status, status) : undefined
                     )
                 );
             const totalCount = Number(total.count ?? 0);

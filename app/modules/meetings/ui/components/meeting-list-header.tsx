@@ -6,15 +6,17 @@ import { NewMeetingDialog } from "./new-meeting-dialog";
 import { useState } from "react";
 import { useMeetingsFilters } from "../../hooks/use-meetings-filter";
 import { MeetingsSearchFilter } from "./meetings-search-filter";
+import { MeetingsFilterOptions } from "./meetings-filter-options";
 import { DEFAULT_PAGE } from "@/constants";
 
 export const MeetingListHeader = () => {
   const [filters, setFilters] = useMeetingsFilters();
   const [open, setOpen] = useState(false);
-  const isAnyFilterApplied = !!filters.search;
+  const isAnyFilterApplied = !!filters.search || (filters.status && filters.status !== "all");
   const onClearFilters = () => {
     setFilters({
       search: "",
+      status: "all",
       page: DEFAULT_PAGE,
     });
   };
@@ -36,8 +38,9 @@ export const MeetingListHeader = () => {
         </Button>
       </div>
       <div className="mb-4 px-4 md:px-8">
-        <div className="flex items-center gap-2 max-w-md">
+        <div className="flex flex-wrap items-center gap-2">
           <MeetingsSearchFilter />
+          <MeetingsFilterOptions />
           {isAnyFilterApplied && (
             <Button variant="outline" size="icon" onClick={onClearFilters}>
               <XIcon className="size-4" />

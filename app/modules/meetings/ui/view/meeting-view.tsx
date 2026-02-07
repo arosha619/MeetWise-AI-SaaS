@@ -48,6 +48,7 @@ export const MeetingView = () => {
         onPageChange={(nextPage) =>
           setFilters({
             search: filters.search,
+            status: filters.status,
             page: nextPage,
           })
         }
