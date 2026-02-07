@@ -8,9 +8,27 @@ import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { and, count, desc, eq, ilike } from "drizzle-orm";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
-import { meetingInsertSchema } from "../schema";
+import { meetingInsertSchema, meetingUpdateSchema } from "../schema";
 
 export const meetingRouter = createTRPCRouter({
+    update: protectedProcedure
+        .input(meetingUpdateSchema)
+        .mutation(async ({ input, ctx }) => {
+            const [updatedMeeting] = await db
+                .update(meetings)
+                .set(input)
+                .where(
+                    and(
+                        eq(meetings.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                )
+                .returning();
+            if (!updatedMeeting) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "meeting not found" });
+            }
+            return updatedMeeting;
+        }),
     create: protectedProcedure
         .input(meetingInsertSchema)
         .mutation(async ({ input, ctx }) => {
