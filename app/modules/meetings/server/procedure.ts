@@ -31,6 +31,52 @@ export const meetingRouter = createTRPCRouter({
             return updatedMeeting;
         }),
 
+    startMeeting: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const [updatedMeeting] = await db
+                .update(meetings)
+                .set({
+                    status: "active",
+                    startedAt: new Date(),
+                    updatedAt: new Date(),
+                })
+                .where(
+                    and(
+                        eq(meetings.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                )
+                .returning();
+            if (!updatedMeeting) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+            }
+            return updatedMeeting;
+        }),
+
+    cancelMeeting: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const [updatedMeeting] = await db
+                .update(meetings)
+                .set({
+                    status: "cancelled",
+                    endedAt: new Date(),
+                    updatedAt: new Date(),
+                })
+                .where(
+                    and(
+                        eq(meetings.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                )
+                .returning();
+            if (!updatedMeeting) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
+            }
+            return updatedMeeting;
+        }),
+
     remove: protectedProcedure
         .input(z.object({ id: z.string() }))
         .mutation(async ({ input, ctx }) => {
