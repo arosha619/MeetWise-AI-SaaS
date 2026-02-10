@@ -81,6 +81,30 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
     confirmText: "Delete meeting",
   });
 
+  const [CancelConfirmDialog, cancelConfirm] = useConfirm({
+    title: "Cancel this meeting?",
+    description:
+      "This meeting will be marked as cancelled. You can still view its details.",
+    confirmText: "Cancel meeting",
+  });
+
+  const cancelMeeting = useMutation(
+    trpc.meeting.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.meeting.getMany.queryOptions({}).queryKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: trpc.meeting.getOne.queryOptions({ id: meetingId }).queryKey,
+        });
+        toast.success("Meeting cancelled");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
   const removeMeeting = useMutation(
     trpc.meeting.remove.mutationOptions({
       onSuccess: async () => {
@@ -103,6 +127,17 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
     const confirmed = await confirm();
     if (!confirmed) return;
     removeMeeting.mutate({ id: meetingId });
+  };
+
+  const handleCancelMeeting = async () => {
+    const confirmed = await cancelConfirm();
+    if (!confirmed) return;
+    cancelMeeting.mutate({
+      id: meetingId,
+      name: data.name,
+      agentId: data.agentId,
+      status: "cancelled",
+    });
   };
 
   return (
@@ -152,6 +187,7 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
       </div>
 
       <ConfirmDialog />
+      <CancelConfirmDialog />
       <ResponsiveDialog
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -172,6 +208,20 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
             <CardDescription>Meeting information and content.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {(data.status === "upcoming" || data.status === "active") && (
+              <div className="flex flex-wrap gap-2">
+                <Button asChild>
+                  <Link href={`/call/${meetingId}`}>Join meeting</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={cancelMeeting.isPending}
+                  onClick={handleCancelMeeting}
+                >
+                  {cancelMeeting.isPending ? "Cancelling..." : "Cancel meeting"}
+                </Button>
+              </div>
+            )}
             {data.summary && (
               <div>
                 <p className="mb-2 text-sm font-medium text-muted-foreground">
