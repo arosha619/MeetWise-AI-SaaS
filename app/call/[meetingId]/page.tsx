@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 interface Props {
-  params: { meetingId: string };
+  params: Promise<{ meetingId: string }>;
 }
 
 export default async function Page({ params }: Props) {
@@ -19,7 +19,7 @@ export default async function Page({ params }: Props) {
     redirect("/auth/sign-in");
   }
 
-  const { meetingId } = params;
+  const { meetingId } = await params;
   const queryClient = getQueryClient();
 
   void queryClient.prefetchQuery(
