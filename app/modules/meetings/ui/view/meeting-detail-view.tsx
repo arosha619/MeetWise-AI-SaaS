@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
+import { PlayCircleIcon, XCircleIcon } from "lucide-react";
 import {
   useMutation,
   useQueryClient,
