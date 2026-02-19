@@ -5,6 +5,18 @@ export const meetingInsertSchema = z.object({
   agentId: z.string().min(1, { message: " agent id is required" }),
 });
 
-export const meetingUpdateSchema = meetingInsertSchema.extend({
-  id: z.string().min(1, { message: "ID is required" }),
-})
+export const meetingStatusEnum = z.enum([
+  "upcoming",
+  "active",
+  "completed",
+  "processing",
+  "cancelled",
+]);
+
+export const meetingUpdateSchema = meetingInsertSchema
+  .extend({
+    id: z.string().min(1, { message: "ID is required" }),
+  })
+  .extend({
+    status: meetingStatusEnum.optional(),
+  });

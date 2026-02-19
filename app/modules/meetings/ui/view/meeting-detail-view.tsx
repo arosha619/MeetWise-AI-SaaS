@@ -82,13 +82,29 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
     confirmText: "Delete meeting",
   });
 
-  const [CancelMeetingDialog, confirmCancel] = useConfirm({
+  const [CancelConfirmDialog, cancelConfirm] = useConfirm({
     title: "Cancel this meeting?",
     description:
-      "The meeting will be marked as cancelled. You can still view its details.",
+      "This meeting will be marked as cancelled. You can still view its details.",
     confirmText: "Cancel meeting",
-    cancelText: "Keep meeting",
   });
+
+  const cancelMeeting = useMutation(
+    trpc.meeting.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.meeting.getMany.queryOptions({}).queryKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: trpc.meeting.getOne.queryOptions({ id: meetingId }).queryKey,
+        });
+        toast.success("Meeting cancelled");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   const removeMeeting = useMutation(
     trpc.meeting.remove.mutationOptions({
@@ -114,51 +130,16 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
     removeMeeting.mutate({ id: meetingId });
   };
 
-  const invalidateMeeting = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: trpc.meeting.getMany.queryOptions({}).queryKey,
-    });
-    await queryClient.invalidateQueries({
-      queryKey: trpc.meeting.getOne.queryOptions({ id: meetingId }).queryKey,
-    });
-  };
-
-  const startMeeting = useMutation(
-    trpc.meeting.startMeeting.mutationOptions({
-      onSuccess: async () => {
-        await invalidateMeeting();
-        toast.success("Meeting started");
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    })
-  );
-
-  const cancelMeeting = useMutation(
-    trpc.meeting.cancelMeeting.mutationOptions({
-      onSuccess: async () => {
-        await invalidateMeeting();
-        toast.success("Meeting cancelled");
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    })
-  );
-
-  const handleStartMeeting = () => {
-    startMeeting.mutate({ id: meetingId });
-  };
-
   const handleCancelMeeting = async () => {
-    const confirmed = await confirmCancel();
+    const confirmed = await cancelConfirm();
     if (!confirmed) return;
-    cancelMeeting.mutate({ id: meetingId });
+    cancelMeeting.mutate({
+      id: meetingId,
+      name: data.name,
+      agentId: data.agentId,
+      status: "cancelled",
+    });
   };
-
-  const canStart = data.status === "upcoming";
-  const canCancel = data.status === "upcoming" || data.status === "active";
 
   return (
     <div className="flex-1 px-4 pb-6 pt-4 md:px-8">
@@ -207,7 +188,7 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
       </div>
 
       <ConfirmDialog />
-      <CancelMeetingDialog />
+      <CancelConfirmDialog />
       <ResponsiveDialog
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -227,30 +208,19 @@ export const MeetingDetailView = ({ meetingId }: MeetingDetailViewProps) => {
             <CardTitle>Details</CardTitle>
             <CardDescription>Meeting information and content.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {(canStart || canCancel) && (
-              <div className="flex flex-wrap gap-3 rounded-lg border border-dashed bg-muted/30 p-4">
-                {canStart && (
-                  <Button
-                    onClick={handleStartMeeting}
-                    disabled={startMeeting.isPending}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
-                  >
-                    <PlayCircleIcon className="mr-2 size-5" />
-                    {startMeeting.isPending ? "Starting..." : "Start Meeting"}
-                  </Button>
-                )}
-                {canCancel && (
-                  <Button
-                    variant="outline"
-                    onClick={handleCancelMeeting}
-                    disabled={cancelMeeting.isPending}
-                    className="border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-800 dark:border-amber-900/50 dark:text-amber-400 dark:hover:bg-amber-950/50"
-                  >
-                    <XCircleIcon className="mr-2 size-5" />
-                    {cancelMeeting.isPending ? "Cancelling..." : "Cancel Meeting"}
-                  </Button>
-                )}
+          <CardContent className="space-y-4">
+            {(data.status === "upcoming" || data.status === "active") && (
+              <div className="flex flex-wrap gap-2">
+                <Button asChild>
+                  <Link href={`/call/${meetingId}`}>Join meeting</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={cancelMeeting.isPending}
+                  onClick={handleCancelMeeting}
+                >
+                  {cancelMeeting.isPending ? "Cancelling..." : "Cancel meeting"}
+                </Button>
               </div>
             )}
             {data.summary && (
