@@ -8,7 +8,8 @@ import {
 } from "@stream-io/video-react-sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
-import "@stream-io/video-react-sdk/dist/css/index.css";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
+
 import { useEffect, useState } from "react";
 import CallUI from "./call-ui";
 interface Props {
@@ -74,7 +75,7 @@ export const CallConnect = ({
 
 
     return (
-        <StreamVideo client={client}> Call connect
+        <StreamVideo client={client}>
             <StreamCall call={call} >
                 <CallUI meetingName={meetingName}/>
             </StreamCall>
